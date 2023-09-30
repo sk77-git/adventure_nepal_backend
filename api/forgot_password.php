@@ -19,36 +19,26 @@ function generateOTP() {
     return mt_rand(100000, 999999);
 }
 
-// Get user email and password from the request
+// Get user email from the request
 $email = $_POST['email'];
-$password = $_POST['password'];
 
-// Check if the email is already registered
 try {
+    // Query to retrieve user data by email
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
     $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->execute();
-    $existingUser = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($existingUser) {
-        echo json_encode(['status' => 'failure', 'message' => 'User with this email already exists.']);
+    if (!$user) {
+        echo json_encode(['status' => 'failure', 'message' => 'User not found.']);
     } else {
         // Generate a random OTP
         $otp = generateOTP();
 
-        // Set OTP expiry time (e.g., 1 hour from the current time)
-        $otpExpiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
-
-        // Hash the password (you should use a strong hashing algorithm like bcrypt)
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        // Query to insert user data into the database
-        $stmt = $pdo->prepare("INSERT INTO users (email, password, otp, otp_expiry) VALUES (:email, :password, :otp, :otp_expiry)");
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
+        // Update the user's OTP and OTP expiry
+        $stmt = $pdo->prepare("UPDATE users SET otp = :otp, otp_expiry = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE email = :email");
         $stmt->bindParam(':otp', $otp, PDO::PARAM_INT);
-        $stmt->bindParam(':otp_expiry', $otpExpiry, PDO::PARAM_STR);  // Bind OTP expiry
-
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             // Send the OTP to the user's email using PHPMailer
@@ -71,17 +61,17 @@ try {
 
                 // Content
                 $mail->isHTML(true);                       // Set email format to HTML
-                $mail->Subject = 'Verification OTP';
-                $mail->Body    = 'Your OTP for verification is: ' . $otp;
+                $mail->Subject = 'Password Reset OTP';
+                $mail->Body    = 'Your OTP for password reset is: ' . $otp;
 
                 $mail->send();
 
-                echo json_encode(['status' => 'success', 'message' => 'Registration successful. OTP sent to your email.']);
+                echo json_encode(['status' => 'success', 'message' => 'OTP sent to your email for password reset.']);
             } catch (Exception $e) {
                 echo json_encode(['status' => 'failure', 'message' => 'Message could not be sent.']);
             }
         } else {
-            echo json_encode(['status' => 'failure', 'message' => 'Registration failed.']);
+            echo json_encode(['status' => 'failure', 'message' => 'Failed to update OTP.']);
         }
     }
 } catch (PDOException $e) {
