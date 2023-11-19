@@ -32,7 +32,8 @@ try {
         if (password_verify($password, $user['password'])) {
             // Check if the user is verified
             if ($user['is_verified'] == 1) {
-                echo json_encode(['status' => 'success','is_verified' => true, 'message' => 'Login successful.']);
+                // Return user object in case of successful login
+                echo json_encode(['status' => 'success', 'is_verified' => true, 'message' => 'Login successful.', 'user' => $user]);
             } else {
                 // User is not verified, send OTP for verification
                 $otp = generateOTP();
@@ -69,20 +70,21 @@ try {
 
                         $mail->send();
 
-                        echo json_encode(['status' => 'success','is_verified' => false, 'message' => 'User not verified. OTP sent to your email.']);
+                        // Return user object along with the verification message
+                        echo json_encode(['status' => 'success', 'is_verified' => false, 'message' => 'User not verified. OTP sent to your email.', 'user' => $user]);
                     } catch (Exception $e) {
-                        echo json_encode(['status' => 'failure','is_verified' => false, 'message' => 'Message could not be sent.']);
+                        echo json_encode(['status' => 'failure', 'is_verified' => false, 'message' => 'Message could not be sent.']);
                     }
                 } else {
-                    echo json_encode(['status' => 'failure','is_verified' => false, 'message' => 'Failed to update OTP.']);
+                    echo json_encode(['status' => 'failure', 'is_verified' => false, 'message' => 'Failed to update OTP.']);
                 }
             }
         } else {
-            echo json_encode(['status' => 'failure','is_verified' => false, 'message' => 'Incorrect password.']);
+            echo json_encode(['status' => 'failure', 'is_verified' => false, 'message' => 'Incorrect password.']);
         }
     }
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'failure','is_verified' => false, 'message' => 'Database error.']);
+    echo json_encode(['status' => 'failure', 'is_verified' => false, 'message' => 'Database error.']);
 }
 
 function generateOTP() {

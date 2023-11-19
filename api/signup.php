@@ -19,8 +19,9 @@ function generateOTP() {
     return mt_rand(100000, 999999);
 }
 
-// Get user email and password from the request
+// Get user email, full_name, and password from the request
 $email = $_POST['email'];
+$full_name = $_POST['full_name'];
 $password = $_POST['password'];
 
 // Check if the email is already registered
@@ -43,12 +44,12 @@ try {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         // Query to insert user data into the database
-        $stmt = $pdo->prepare("INSERT INTO users (email, password, otp, otp_expiry) VALUES (:email, :password, :otp, :otp_expiry)");
+        $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password, otp, otp_expiry) VALUES (:full_name, :email, :password, :otp, :otp_expiry)");
+        $stmt->bindParam(':full_name', $full_name, PDO::PARAM_STR);
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
         $stmt->bindParam(':otp', $otp, PDO::PARAM_INT);
         $stmt->bindParam(':otp_expiry', $otpExpiry, PDO::PARAM_STR);  // Bind OTP expiry
-
 
         if ($stmt->execute()) {
             // Send the OTP to the user's email using PHPMailer

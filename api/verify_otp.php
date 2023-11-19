@@ -8,6 +8,7 @@ header('Content-Type: application/json');
 // Get user email and OTP from the request
 $email = $_POST['email'];
 $otp = $_POST['otp'];
+$purpose = $_POST['purpose'];
 
 try {
     // Query to retrieve user data by email
@@ -21,18 +22,28 @@ try {
     } else {
         // Check if the OTP matches and is not expired
         if ($user['otp'] == $otp && strtotime($user['otp_expiry']) > time()) {
-            // Mark the user as verified
-            $stmt = $pdo->prepare("UPDATE users SET is_verified = 1 WHERE email = :email");
-            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+           // Check the purpose and mark the user as verified only for signup
+            if ($purpose == "signup") {
+                $stmt = $pdo->prepare("UPDATE users SET is_verified = 1 WHERE email = :email");
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
 
-            if ($stmt->execute()) {
-                echo json_encode(['status' => 'success', 'message' => 'OTP verification successful.']);
+                if ($stmt->execute()) {
+                    echo json_encode(['status' => 'success', 'message' => 'OTP verification successful.']);
+                } else {
+                    echo json_encode(['status' => 'failure', 'message' => 'Failed to update user verification status.']);
+                }
             } else {
-                echo json_encode(['status' => 'failure', 'message' => 'Failed to update user verification status.']);
+                echo json_encode(['status' => 'success', 'message' => 'OTP verification successful.']);
             }
-        } else {
-            echo json_encode(['status' => 'failure', 'message' => 'OTP verification failed.']);
+        } 
+		else if($user['otp'] != $otp){
+            echo json_encode(['status' => 'failure', 'message' => 'OTP does not match']);
         }
+		else if(strtotime($user['otp_expiry']) > time()){
+            echo json_encode(['status' => 'failure', 'message' => 'OTP has expired']);
+        }else{
+			 echo json_encode(['status' => 'failure', 'message' => 'OTP verification failed.']);
+		}
     }
 } catch (PDOException $e) {
     echo json_encode(['status' => 'failure', 'message' => 'Database error.']);
