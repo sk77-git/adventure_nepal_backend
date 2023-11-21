@@ -3,7 +3,7 @@
 session_start();
  
 // Check if the user is logged in, if not then redirect him to the login page
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
+if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: ../login.php");
     exit;
 }
@@ -14,48 +14,26 @@ $db = mysqli_connect("localhost", "root", "", "adv_nepal");
 $msg = "";
 
 if (isset($_POST['upload'])) {
-    $title = $_POST['title'];
-    $title = trim($title);
-    $description = $_POST['description'];
-    $description = trim($description);
+    $name = $_POST['name'];
+    $name = trim($name);
+    $desc = $_POST['description'];
+    $desc = trim($desc);
 
     $html = $_POST['html'];
-    $icon = $_POST['icon'];
-    $tags = json_encode($_POST['tags']);
-    $cities = json_encode($_POST['cities']);
-    $weathers = json_encode($_POST['weathers']);
-    $minTemp = floatval($_POST['min_temp']);
-    $maxTemp = floatval($_POST['max_temp']);
+    $categories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
+    $thumbnail = $_POST['thumbnail'];
+    $weathers = isset($_POST['weathers']) ? json_encode($_POST['weathers']) : '[]';
 
-    $filename = $_FILES["uploadfile"]["name"];
-    $tempname = $_FILES["uploadfile"]["tmp_name"];
-    $folder = "icons/" . $filename;
-
-    if ($filename == "") {
-        $sql = "INSERT INTO `activities` (`id`, `created_at`, `updated_at`, `title`, `description`, `html`, `icon`, `tags`, `cities`, `weathers`, `min_temp`, `max_temp`)
-        VALUES (NULL, NOW(), NOW(), '$title', '$description', '$html', '', '$tags', '$cities', '$weathers', $minTemp, $maxTemp)";
-    } else {
-        $sql = "INSERT INTO `activities` (`id`, `created_at`, `updated_at`, `title`, `description`, `html`, `icon`, `tags`, `cities`, `weathers`, `min_temp`, `max_temp`)
-        VALUES (NULL, NOW(), NOW(), '$title', '$description', '$html', '$icon', '$tags', '$cities', '$weathers', $minTemp, $maxTemp)";
-
-        // try{
-        //     if (move_uploaded_file($tempname, $folder)) {
-        //         $msg = "Activity added successfully";
-        //     } else {
-        //         $msg = "Failed to upload Icon";
-        //     }
-        // }catch(PDOException $e){
-            
-        // }
-    }
+    $sql = "INSERT INTO `activities` (`name`, `thumbnail`, `description`, `html`,`weathers`, `categories`) VALUES ('$name','$thumbnail','$desc','$html','$weathers','$categories')";
 
     if (mysqli_query($db, $sql)) {
-        $msg = "Activity added successfully";
+        $msg = "Activity uploaded successfully";
     } else {
         $msg = "Query Not Executed";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -73,32 +51,43 @@ if (isset($_POST['upload'])) {
         <div class="container">
         <h2><?php echo $msg; ?></h2>
         <form method="POST" action="" enctype="multipart/form-data">
-            <label for="title">Title</label>
-            <input type="text" id="title" name="title" placeholder="Enter title here..." required>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter name here..." required>
             <label for="description">Description</label>
             <textarea id="description" name="description" placeholder="Write something.." required></textarea>
             <label for="html">HTML Content</label>
             <textarea id="html" name="html" placeholder="Enter HTML content..." required></textarea>
-            <label for="icon">Icon</label>
-            <input type="text" id="icon" name="icon" placeholder="Enter icon URL..." required>
-            <label for="tags">Tags</label>
-            <input type="text" id="tags" name="tags" placeholder="Enter tags..." required>
-            <label for="cities">Cities</label>
-            <input type="text" id="cities" name="cities" placeholder="Enter cities..." required>
-            <label for="weathers">Weathers</label>
-            <input type="text" id="weathers" name="weathers" placeholder="Enter weathers..." required>
-            <label for="min_temp">Min Temperature</label>
-            <input type="number" id="min_temp" name="min_temp" placeholder="Enter min temperature..." required>
-            <label for="max_temp">Max Temperature</label>
-            <input type="number" id="max_temp" name="max_temp" placeholder="Enter max temperature..." required>
-            <label for="uploadfile">Select Icon</label>
-            <input type="file" name="uploadfile" value="" id="file-ip-1" accept="image/*" onchange="showPreview(event)";/>
-            <p><img id="outputImg"/></p>
+            <!-- Categories -->
+			<label for="categories">Categories</label>
+			<br>
+			<?php
+				// Fetch categories from the database
+				$category_query = mysqli_query($db, "SELECT * FROM categories");
+				while ($row = mysqli_fetch_assoc($category_query)) {
+					echo '<input type="checkbox" name="categories[]" value="' . $row['category'] . '"> ' . $row['category'] . '<br>';
+				}
+			?>
+			<br>
+
+			<!-- Weathers -->
+			<label for="weathers">Weathers</label>
+			<br>
+			<?php
+				// Fetch weathers from the database
+				$weather_query = mysqli_query($db, "SELECT * FROM weathers");
+				while ($row = mysqli_fetch_assoc($weather_query)) {
+					echo '<input type="checkbox" name="weathers[]" value="' . $row['weather'] . '"> ' . $row['weather'] . '<br>';
+				}
+			?>
+			<br>
+
+			<br>
+			<br>
+            <label for="thumbnail">Thumbnail</label>
+            <input type="text" id="thumbnail" name="thumbnail" placeholder="Enter thumbnail URL..." required>
             <input type="submit" name="upload">
         </form>
         </div>
-    </div>
-
     </div>
 
     <script>
@@ -120,6 +109,11 @@ if (isset($_POST['upload'])) {
             preview.style.display = "block";
           }
         }
+
     </script>
+
+    <!-- Include your JavaScript dependencies here -->
+
 </body>
 </html>
+

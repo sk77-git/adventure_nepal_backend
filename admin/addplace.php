@@ -1,10 +1,9 @@
 <?php
-
 // Initialize the session
 session_start();
  
-// Check if the user is logged in, if not then redirect him to login page
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
+// Check if the user is logged in, if not then redirect him to the login page
+if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: ../login.php");
     exit;
 }
@@ -23,37 +22,11 @@ if (isset($_POST['upload'])) {
     $html = $_POST['html'];
     $lat = floatval($_POST['lat']);
     $long = floatval($_POST['long']);
-    $tags = json_encode($_POST['tags']);
-    $nearbyPlaces = json_encode($_POST['nearbyPlaces']);
+    $categories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
     $thumbnail = $_POST['thumbnail'];
+    $weathers = isset($_POST['weathers']) ? json_encode($_POST['weathers']) : '[]';
 
-    $filename = $_FILES["uploadfile"]["name"];
-    $tempname = $_FILES["uploadfile"]["tmp_name"];
-    $folder = "images/" . $filename;
-
-
-    // $tagsArray = explode(',', $tags);
-    // $tagsJson = json_encode($tagsArray);
-    $tagsJson= "[$tags]";
-    $nearbyPlacesJson="[$nearbyPlaces]";
-
-
-    // $nearbyPlacesArray = explode(',', $nearbyPlaces);
-    // $nearbyPlacesJson = json_encode($nearbyPlacesArray);
-
-    if ($filename == "") {
-        $sql = "INSERT INTO `places` (`id`, `name`, `images`, `thumbnail`, `description`, `html`, `lat`, `lang`, `tags`, `nearby_places`)
-        VALUES (NULL, '$name', '[]', '$thumbnail', '$desc', '$html', $lat, $long, '$tags', '$nearbyPlaces')";
-    } else {
-        $sql = "INSERT INTO `places` (`id`, `name`, `images`, `thumbnail`, `description`, `html`, `lat`, `lang`, `tags`, `nearby_places`)
-        VALUES (NULL, '$name', '$images', '$thumbnail', '$desc', '$html', $lat, $long, '$tagsJson', '$nearbyPlacesJson')";
-
-        if (move_uploaded_file($tempname, $folder)) {
-            $msg = "Place uploaded successfully";
-        } else {
-            $msg = "Failed to upload Image";
-        }
-    }
+    $sql = "INSERT INTO `places` (`name`, `thumbnail`, `description`, `html`, `lat`, `long`, `weathers`, `categories`) VALUES ('$name','$thumbnail','$desc','$html','$lat','$long','$weathers','$categories')";
 
     if (mysqli_query($db, $sql)) {
         $msg = "Place uploaded successfully";
@@ -61,8 +34,8 @@ if (isset($_POST['upload'])) {
         $msg = "Query Not Executed";
     }
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -87,25 +60,46 @@ if (isset($_POST['upload'])) {
             <label for="html">HTML Content</label>
             <textarea id="html" name="html" placeholder="Enter HTML content..." required></textarea>
             <label for="lat">Latitude</label>
-            <input type="number" id="lat" name="lat" placeholder="Enter latitude..." required>
-            <label for="long">Longitude</label>
-            <input type="number" id="long" name="long" placeholder="Enter longitude..." required>
-            <label for="tags">Tags</label>
-            <input type="text" id="tags" name="tags" placeholder="Enter tags..." required>
-            <label for="nearbyPlaces">Nearby Places</label>
-            <input type="text" id="nearbyPlaces" name="nearbyPlaces" placeholder="Enter nearby places..." required>
-            <label for="images">Images</label>
-            <input type="text" id="images" name="images" placeholder="Enter image URLs..." required>
+			<input type="number" id="lat" name="lat" step="any" placeholder="Enter latitude..." required>
+			<br>
+			<label for="long">Longitude</label>
+			<input type="number" id="long" name="long" step="any" placeholder="Enter longitude..." required>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+            <!-- Categories -->
+			<label for="categories">Categories</label>
+			<br>
+			<?php
+				// Fetch categories from the database
+				$category_query = mysqli_query($db, "SELECT * FROM categories");
+				while ($row = mysqli_fetch_assoc($category_query)) {
+					echo '<input type="checkbox" name="categories[]" value="' . $row['category'] . '"> ' . $row['category'] . '<br>';
+				}
+			?>
+			<br>
+
+			<!-- Weathers -->
+			<label for="weathers">Weathers</label>
+			<br>
+			<?php
+				// Fetch weathers from the database
+				$weather_query = mysqli_query($db, "SELECT * FROM weathers");
+				while ($row = mysqli_fetch_assoc($weather_query)) {
+					echo '<input type="checkbox" name="weathers[]" value="' . $row['weather'] . '"> ' . $row['weather'] . '<br>';
+				}
+			?>
+			<br>
+
+			<br>
+			<br>
             <label for="thumbnail">Thumbnail</label>
             <input type="text" id="thumbnail" name="thumbnail" placeholder="Enter thumbnail URL..." required>
-            <label for="uploadfile">Select featured Image</label>
-            <input type="file" name="uploadfile" value="" id="file-ip-1" accept="image/*" onchange="showPreview(event)";/>
-            <p><img id="outputImg"/></p>
             <input type="submit" name="upload">
         </form>
         </div>
-    </div>
-
     </div>
 
     <script>
@@ -134,3 +128,4 @@ if (isset($_POST['upload'])) {
 
 </body>
 </html>
+

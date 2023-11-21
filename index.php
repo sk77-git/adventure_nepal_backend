@@ -9,7 +9,7 @@ if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
 }
  
 /* Attempt to connect to MySQL database */
-$link =mysqli_connect("localhost", "root", "", "blogcms");
+$link =mysqli_connect("localhost", "root", "", "adv_nepal");
  
 // Check connection
 if($link === false){

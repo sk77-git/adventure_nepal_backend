@@ -23,52 +23,26 @@ if (isset($_GET['deleteYesBtn'])) {
   $sqlDelete= "DELETE FROM `places` WHERE id= $id";
   $sql2 = "SELECT * FROM places WHERE id = '$id' ";
   
-  
-  /*=============Deleting Image file first ==================*/
-  $posts= mysqli_query($db, $sql2);
-  if ($posts) {
-    while ($row = mysqli_fetch_array($posts)) {
-       
-        $fimg = "images/".$row['fimg'];
-        if(!empty($fimg)){
-          /* Deliting Image*/
-          if (!unlink($fimg)) {
-            echo ("<div class='alert alert-success alert-dismissible'>
-            <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-            <strong>Failed!</strong> Image Couldn't be deleted.
-          </div>");
-          }
-          else {
-              
-          }  
-        }
-  
-           
-      } 
-  }
-  
-  
   /* ================== Deleting table row==============*/
   $query= mysqli_query($db, $sqlDelete);
   if ($query) {
-    // Display confirmation alert and reload the page
-    echo "<script>
-            if (confirm('Record deleted successfully. Click OK to refresh the page.')) {
-                //location.reload();
-            }else{
-              //location.reload();
-            }
-        </script>";
-} else {
-    // Handle delete query error
-    echo ("<div class='alert alert-danger alert-dismissible'>
-    <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-    <strong>Error!</strong> Delete query failed.
-    </div>");
+		// Display confirmation alert and reload the page
+		  echo "<script>
+                var confirmation = confirm('Record deleted successfully. Click OK to refresh the page.');
+                if (confirmation) {
+                    window.location.href = 'index.php';
+                } else {
+                     window.location.href = 'index.php';
+                }
+            </script>";
+	} else {
+		// Handle delete query error
+		echo ("<div class='alert alert-danger alert-dismissible'>
+		<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+		<strong>Error!</strong> Delete query failed.
+		</div>");
+	}
 }
-  }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -93,18 +67,18 @@ if (isset($_GET['deleteYesBtn'])) {
       echo"
       <div class='card w-100'>
       <div class='card-body'>
-        <img class='rounded float-left' src='images/".$row['fimg']."' alt='Card image cap' onerror=this.src='../images/noimg.svg'>
+        <img class='rounded float-left' src='".$row['thumbnail']."' alt='Card image cap' onerror=this.src='../images/noimg.svg'>
         <h5 class='card-title'>" . $name. "</h5>
         <p class='card-text'>" . $desc . "</p>
 
 
         <form method='POST' action='editplace.php' class='forms' >
-        <button href='#' class='btn btn-primary'>Edit ".$id."</button>
+        <button href='#' class='btn btn-primary'>Edit</button>
         <input type = 'hidden' name = 'id' value =' ".$id."' />
         </form>
 
         <form method='GET' action='' class='forms' >
-        <button href='#' class='btn btn-danger'type='submit' name = 'deleteYesBtn' >Delete ".$id."</button>
+        <button href='#' class='btn btn-danger'type='submit' name = 'deleteYesBtn' >Delete</button>
         <input type = 'hidden' name = 'id' value =' ".$id."' />
         </form>   
         

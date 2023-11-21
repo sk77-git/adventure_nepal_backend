@@ -1,9 +1,6 @@
 <?php
-
-
 // Initialize the session
 session_start();
- 
 // Check if the user is logged in, if not then redirect him to login page
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: ../login.php");
@@ -13,51 +10,54 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     $db = mysqli_connect("localhost", "root", "", "adv_nepal");
     $id= $_POST['id'];
 
-
-    //Get Post details
+    //Get Place details
     $sql = "SELECT * FROM places WHERE id = '$id' ";
-    $posts= mysqli_query($db, $sql);
-    if ($posts) {
-        while ($row = mysqli_fetch_array($posts)) {
+    $places= mysqli_query($db, $sql);
+    if ($places) {
+        while ($row = mysqli_fetch_array($places)) {
             $title= $row['name'];
             $content= $row['description'];
-            // $fimg = "images/".$row['fimg'];
+            $html= $row['html'];
+            $lat= $row['lat'];
+			$long= $row['long'];
+			$thumbnail= $row['thumbnail'];
+			$categories = $row['categories'];
+			$selectedCategories = json_decode($categories); // Assuming $categories contains JSON-encoded category names
+			$weathers= $row['weathers'];
+		
         } 
     }
+    // Update post
+	if (isset($_POST['update'])) {
+		$newId = $_POST['id'];
+		$newTitle = $_POST['name'];
+		$newTitle = trim($newTitle);
+		$newContent = $_POST['description'];
+		$newContent = trim($newContent);
+		$newHtml = $_POST['html'];
+		$newHtml = trim($newHtml);
+		$newLat = $_POST['lat'];
+		$newLong = $_POST['long'];
+		$newThumbnail = $_POST['thumbnail'];
+		$newCategories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
+		$newWeathers = isset($_POST['weathers']) ? json_encode($_POST['weathers']) : '[]';
 
+		$sql = "UPDATE places SET name='$newTitle', description='$newContent', html='$newHtml', lat='$newLat', `long`='$newLong', thumbnail='$newThumbnail', categories='$newCategories', weathers='$newWeathers' WHERE id='$newId'";
 
-    //Update post 
-    if ( isset( $_POST['update']) ) {
-
-        $newTitle= $_POST['name'];
-        $newTitle = trim($newTitle);
-        $newContent= $_POST['description'];
-        $newContent = trim($newContent);
-
-        $newFilename = $_FILES["uploadfile"]["name"];
-        $tempname = $_FILES["uploadfile"]["tmp_name"];
-        $folder = "images/".$newFilename;
-        $sql2 = "UPDATE places SET name='$newTitle', description= '$newContent', fimg= '$folder' WHERE id='$id'";
-
-      
-        if(mysqli_query($db, $sql2)){
-            if ( move_uploaded_file( $tempname, $folder ) ) {
-                $msg = "Article Updated successfully";
-            } else{
-                $msg = "Failed to update Image";
-            }
-        }else{
-            $msg="Query Not Executed";
-        }
-    }
-
-    
-
-
+		if (mysqli_query($db, $sql)) {
+			$msg = "Place Updated successfully";
+			// Redirect back to the same page with the id parameter using POST
+			echo "<form id='redirectForm' method='post' action=''>
+                <input type='hidden' name='id' value='$newId'>
+              </form>
+              <script>
+                document.getElementById('redirectForm').submit();
+              </script>";
+		} else {
+			$msg = "Query Not Executed: " . mysqli_error($db);
+		}
+	}
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html>
@@ -70,31 +70,76 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 
     <div id="main">
         <div class="header">
-            <h2>The Hello News Admin Panel</h2>
+            <h2>Adventure Nepal</h2>
             <p>Click on the element below to open the side navigation menu, and push this content to the right.</p>
             <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Admin Dashboard</span>
         </div>
 
         <div class="container">
        <h2><?php if ( isset( $_POST['update']) ) {echo $msg;} ?></h2>
-        <form method="POST" action="editpost.php" enctype="multipart/form-data">
-            <label for="name">Title</label>
-            <input type="text" id="name" name="name" value="<?php echo $title ?>" required>
+        <form method="POST" action="editplace.php" enctype="multipart/form-data">
+    <label for="name">Title</label>
+    <input type="text" id="name" name="name" value="<?php echo $title ?>" required>
 
-            <label for="description">Description</label>
-            <input type ="text" id="description" name="dedescription"  value="<?php echo $content ?>"  required>
-            <input type="hidden" name="postid" value="<?php echo $id ?>" >
+    <label for="description">Description</label>
+    <input type="text" id="description" name="description" value="<?php echo $content ?>" required>
+	
+	 <label for="html">HTML</label>
+    <input type="text" id="html" name="html" value="<?php echo $html ?>" required>
+	<br>
+	<br>
+    <label for="lat">Latitude</label>
+    <input type="number" step="any" id="lat" name="lat" value="<?php echo $lat ?>" required>
 
-            <!-- Chnaging text area for desc to input text works-->
+    <label for="long">Longitude</label>
+    <input type="number" step="any" id="long" name="long" value="<?php echo $long ?>" required>
+	<br>
+	<br>
+    <label for="thumbnail">Thumbnail</label>
+    <input type="text" id="thumbnail" name="thumbnail" value="<?php echo $thumbnail ?>" required>
+	<br>
+	<br>
+   <label for="categories">Categories</label>
+	<br>
+	<?php
+	// Fetch all categories
+	$allCategoriesQuery = mysqli_query($db, "SELECT * FROM categories");
+	$selectedCategories = json_decode($categories); // Assuming $categories contains JSON-encoded category names
 
-            <label for="uploadfile"  >Select featured Image</label>
-            <input type="file" name="uploadfile" value="" id="file-ip-1"
-                accept="image/*" onchange="showPreview(event)";/>
-            <p><img id="outputImg" src="<?php echo $fimg ?>" onerror=this.src="../images/noimg.svg" /></p>
+	while ($row = mysqli_fetch_assoc($allCategoriesQuery)) {
+		$categoryId = $row['id'];
+		$categoryName = $row['category'];
+		$checked = in_array($categoryName, $selectedCategories) ? 'checked' : '';
+
+		echo '<input type="checkbox" name="categories[]" value="' . $categoryName . '" ' . $checked . '> ' . $categoryName . '<br>';
+	}
+	?>
+	<br>
+	<p>
+	<br>
+	<br>
+	 <label for="weathers">Weathers</label>
+	<br>
+	<?php
+	// Fetch all categories
+	$allWeathersQuery = mysqli_query($db, "SELECT * FROM weathers");
+	$selectedWeathers = json_decode($weathers); // Assuming $categories contains JSON-encoded category names
+
+	while ($row = mysqli_fetch_assoc($allWeathersQuery)) {
+		$weatherId = $row['id'];
+		$weatherName = $row['weather'];
+		$checked = in_array($weatherName, $selectedWeathers) ? 'checked' : '';
+
+		echo '<input type="checkbox" name="weathers[]" value="' . $weatherName . '" ' . $checked . '> ' . $weatherName . '<br>';
+	}
+	?>
+	<br>
 
 
-            <input type="submit" name="update" >
-        </form>
+    <input type="hidden" name="id" value="<?php echo $id; ?>">
+    <input type="submit" name="update">
+</form>
+
         </div>
 
     </div>

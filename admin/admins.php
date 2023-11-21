@@ -10,7 +10,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 }
 
 // Create database connection
-$db = mysqli_connect("localhost", "root", "", "blogcms");
+$db = mysqli_connect("localhost", "root", "", "adv_nepal");
 $sql= "SELECT * FROM admins";
 
 

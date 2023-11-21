@@ -1,5 +1,5 @@
 <?php
 
-$conn = mysqli_connect('localhost','root','','blogcms');
+$conn = mysqli_connect('localhost','root','','adv_nepal');
 
 ?>
