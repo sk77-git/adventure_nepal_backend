@@ -17,7 +17,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
         while ($row = mysqli_fetch_array($activities)) {
             $title= $row['name'];
             $content= $row['description'];
-            $html= $row['html'];
+       
 			$thumbnail= $row['thumbnail'];
 			$categories = $row['categories'];
 			$selectedCategories = json_decode($categories); // Assuming $categories contains JSON-encoded category names
@@ -31,13 +31,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 		$newTitle = trim($newTitle);
 		$newContent = $_POST['description'];
 		$newContent = trim($newContent);
-		$newHtml = $_POST['html'];
-		$newHtml = trim($newHtml);
+
+	
 		$newThumbnail = $_POST['thumbnail'];
 		$newCategories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
 		$newWeathers = isset($_POST['weathers']) ? json_encode($_POST['weathers']) : '[]';
 
-		$sql = "UPDATE activities SET name='$newTitle', description='$newContent', html='$newHtml', thumbnail='$newThumbnail', categories='$newCategories', weathers='$newWeathers' WHERE id='$newId'";
+		$sql = "UPDATE activities SET name='$newTitle', description='$newContent', thumbnail='$newThumbnail', categories='$newCategories', weathers='$newWeathers' WHERE id='$newId'";
 
 		if (mysqli_query($db, $sql)) {
 			$msg = "Activity Updated successfully";
@@ -79,8 +79,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     <label for="description">Description</label>
     <input type="text" id="description" name="description" value="<?php echo $content ?>" required>
 	
-	 <label for="html">HTML</label>
-    <input type="text" id="html" name="html" value="<?php echo $html ?>" required>
+
 	<br>
     <label for="thumbnail">Thumbnail</label>
     <input type="text" id="thumbnail" name="thumbnail" value="<?php echo $thumbnail ?>" required>

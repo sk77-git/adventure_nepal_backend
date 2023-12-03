@@ -17,7 +17,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
         while ($row = mysqli_fetch_array($places)) {
             $title= $row['name'];
             $content= $row['description'];
-            $html= $row['html'];
+         
             $lat= $row['lat'];
 			$long= $row['long'];
 			$thumbnail= $row['thumbnail'];
@@ -34,15 +34,15 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 		$newTitle = trim($newTitle);
 		$newContent = $_POST['description'];
 		$newContent = trim($newContent);
-		$newHtml = $_POST['html'];
-		$newHtml = trim($newHtml);
+	
+	
 		$newLat = $_POST['lat'];
 		$newLong = $_POST['long'];
 		$newThumbnail = $_POST['thumbnail'];
 		$newCategories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
 		$newWeathers = isset($_POST['weathers']) ? json_encode($_POST['weathers']) : '[]';
 
-		$sql = "UPDATE places SET name='$newTitle', description='$newContent', html='$newHtml', lat='$newLat', `long`='$newLong', thumbnail='$newThumbnail', categories='$newCategories', weathers='$newWeathers' WHERE id='$newId'";
+		$sql = "UPDATE places SET name='$newTitle', description='$newContent', lat='$newLat', `long`='$newLong', thumbnail='$newThumbnail', categories='$newCategories', weathers='$newWeathers' WHERE id='$newId'";
 
 		if (mysqli_query($db, $sql)) {
 			$msg = "Place Updated successfully";
@@ -84,9 +84,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     <label for="description">Description</label>
     <input type="text" id="description" name="description" value="<?php echo $content ?>" required>
 	
-	 <label for="html">HTML</label>
-    <input type="text" id="html" name="html" value="<?php echo $html ?>" required>
-	<br>
+
 	<br>
     <label for="lat">Latitude</label>
     <input type="number" step="any" id="lat" name="lat" value="<?php echo $lat ?>" required>

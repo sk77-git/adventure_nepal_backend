@@ -19,14 +19,14 @@ if (isset($_POST['upload'])) {
     $desc = $_POST['description'];
     $desc = trim($desc);
 
-    $html = $_POST['html'];
+    //$html = $_POST['html'];
     $lat = floatval($_POST['lat']);
     $long = floatval($_POST['long']);
     $categories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
     $thumbnail = $_POST['thumbnail'];
     $weathers = isset($_POST['weathers']) ? json_encode($_POST['weathers']) : '[]';
 
-    $sql = "INSERT INTO `places` (`name`, `thumbnail`, `description`, `html`, `lat`, `long`, `weathers`, `categories`) VALUES ('$name','$thumbnail','$desc','$html','$lat','$long','$weathers','$categories')";
+    $sql = "INSERT INTO `places` (`name`, `thumbnail`, `description`, `lat`, `long`, `weathers`, `categories`) VALUES ('$name','$thumbnail','$desc','$lat','$long','$weathers','$categories')";
 
     if (mysqli_query($db, $sql)) {
         $msg = "Place uploaded successfully";
@@ -57,15 +57,13 @@ if (isset($_POST['upload'])) {
             <input type="text" id="name" name="name" placeholder="Enter name here..." required>
             <label for="description">Description</label>
             <textarea id="description" name="description" placeholder="Write something.." required></textarea>
-            <label for="html">HTML Content</label>
-            <textarea id="html" name="html" placeholder="Enter HTML content..." required></textarea>
+          
             <label for="lat">Latitude</label>
 			<input type="number" id="lat" name="lat" step="any" placeholder="Enter latitude..." required>
 			<br>
 			<label for="long">Longitude</label>
 			<input type="number" id="long" name="long" step="any" placeholder="Enter longitude..." required>
-			<br>
-			<br>
+		
 			<br>
 			<br>
 			<br>

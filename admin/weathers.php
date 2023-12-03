@@ -5,34 +5,32 @@ session_start();
  
 // Check if the user is logged in, if not then redirect him to login page
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: ../index.php");
+    header("location: ../login.php");
     exit;
 }
 
 // Create database connection
 $db = mysqli_connect("localhost", "root", "", "adv_nepal");
-$sql= "SELECT * FROM places";
+$sql= "SELECT * FROM weathers";
 
-
-//Get All Posts
-$result = mysqli_query($db, $sql);
 
 // DELETE
 if (isset($_GET['deleteYesBtn'])) {
-  $id= $_GET['id'];
-  $sqlDelete= "DELETE FROM `places` WHERE id= $id";
-  $sql2 = "SELECT * FROM places WHERE id = '$id' ";
-  
-  /* ================== Deleting table row==============*/
-  $query= mysqli_query($db, $sqlDelete);
-  if ($query) {
+ 
+$id= $_GET['id'];
+$sqlDelete= "DELETE FROM `weathers` WHERE id= $id";
+
+
+/* ================== Deleting table row==============*/
+$query= mysqli_query($db, $sqlDelete);
+if ($query) {
 		// Display confirmation alert and reload the page
 		  echo "<script>
                 var confirmation = confirm('Record deleted successfully. Click OK to refresh the page.');
                 if (confirmation) {
-                    window.location.href = 'index.php';
+                    window.location.href = 'weathers.php';
                 } else {
-                     window.location.href = 'index.php';
+                     window.location.href = 'weathers.php';
                 }
             </script>";
 	} else {
@@ -43,64 +41,76 @@ if (isset($_GET['deleteYesBtn'])) {
 		</div>");
 	}
 }
+
+/* ===========================*/
+$result = mysqli_query($db, $sql);
+
+
 ?>
 
 <!DOCTYPE html>
 <html>
 <?php include 'head.php' ?>
- <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../styles.css">
-  </head>
+<style>
+table {
+    margin: 50px 50px 50px 50px;
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #ffffff;
+}
+tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+</style>
+
 <body>
   <?php include 'sidenav.php' ?>
 
   <div id="main">
     <div class="header">
-      <h2>Adventure Nepal</h2>
+      <h2>The Hello News Admin Panel</h2>
       <p>Click on the element below to open the side navigation menu, and push this content to the right.</p>
       <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Admin Dashboard</span>
     </div>
     <?php
+
     
+    echo("<table class='table table-bordered'>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Action</th>
+    </tr>");
     while ($row = mysqli_fetch_array($result)) {
-      $name= $row['name'];
-      $desc= $row['description'];
-      $id=$row['id'];
-
-      echo"
-      <div class='card w-100'>
-      <div class='card-body'>
-        <img class='rounded float-left' src='".$row['thumbnail']."' alt='Card image cap' onerror=this.src='../images/noimg.svg'>
-        <h5 class='card-title'>" . $name. "</h5>
-		<p class='card-text' style='display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal;'>" . $desc . "</p>
-
-
-
-
-        <form method='POST' action='editplace.php' class='forms' >
-        <button href='#' class='btn btn-primary'>Edit</button>
+          
+      $id= $row['id'];
+      $name= $row['weather'];
+      echo "
+      <tr>
+        <td>".$id."</td>
+        <td>".$name."</td>
+        <td> <form method='GET' action='' class='forms' >
+        <button href='#' class='btn btn-danger'type='submit' name = 'deleteYesBtn' >Delete ".$id."</button>
         <input type = 'hidden' name = 'id' value =' ".$id."' />
-        </form>
-
-        <form method='GET' action='' class='forms' >
-        <button href='#' class='btn btn-danger'type='submit' name = 'deleteYesBtn' >Delete</button>
-        <input type = 'hidden' name = 'id' value =' ".$id."' />
-        </form>   
-        
-      </div>
-    </div>";
+        </form> </td>
+      </tr>
+      ";
 
     
     
     }
+    echo("</table>");
     ?>
   </div>
 

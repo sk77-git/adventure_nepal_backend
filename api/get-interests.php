@@ -5,22 +5,41 @@ include '../includes/db_connection.php';
 // Set the response header to JSON
 header('Content-Type: application/json');
 
-// Get user id from the request
-$userId = $_GET['user_id'];
-
 try {
     // Query to retrieve user interests by userId
-    $stmt = $pdo->prepare("SELECT interests FROM users WHERE id = :user_id");
-    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $userId = isset($_GET['user_id']) ? $_GET['user_id'] : null;
 
-    if ($user) {
-        $userInterests = json_decode($user['interests']);
-        echo json_encode(['status' => 'success', 'message' => 'User interests fetched successfully.', 'interests' => $userInterests]);
+    if ($userId) {
+        $stmtUser = $pdo->prepare("SELECT categories FROM users WHERE id = :user_id");
+        $stmtUser->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmtUser->execute();
+        $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+        if ($user) {
+            $userInterests = json_decode($user['categories']);
+        } else {
+            echo json_encode(['status' => 'failure', 'message' => 'User not found.']);
+            exit();
+        }
     } else {
-        echo json_encode(['status' => 'failure', 'message' => 'User not found.']);
+        $userInterests = [];
     }
+
+    // Query to retrieve all categories
+    $stmtAllCategories = $pdo->prepare("SELECT * FROM categories");
+    $stmtAllCategories->execute();
+    $allCategories = $stmtAllCategories->fetchAll(PDO::FETCH_ASSOC);
+
+    // Response
+    $response = [
+        'status' => 'success',
+        'message' => 'Categories fetched successfully.',
+        'user_categories' => $userInterests,
+        'all_categories' => $allCategories
+    ];
+
+    echo json_encode($response);
+
 } catch (PDOException $e) {
     echo json_encode(['status' => 'failure', 'message' => 'Database error.']);
 }

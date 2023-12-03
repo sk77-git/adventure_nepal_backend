@@ -1,6 +1,6 @@
 <?php
 // Include config file
-$link = mysqli_connect('localhost','root','','blogcms');
+$link = mysqli_connect('localhost','root','','adv_nepal');
  
 // Define variables and initialize with empty values
 $username = $password = $confirm_password = "";

@@ -27,8 +27,8 @@ try {
             echo json_encode(['status' => 'failure', 'message' => 'User not found.']);
         } else {
             // Update user interests
-            $updateStmt = $pdo->prepare("UPDATE users SET interests = :interests WHERE id = :user_id");
-            $updateStmt->bindParam(':interests', $encodedInterests, PDO::PARAM_STR);
+            $updateStmt = $pdo->prepare("UPDATE users SET categories = :categories WHERE id = :user_id");
+            $updateStmt->bindParam(':categories', $encodedInterests, PDO::PARAM_STR);
             $updateStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
 
             if ($updateStmt->execute()) {

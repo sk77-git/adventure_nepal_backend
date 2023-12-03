@@ -16,18 +16,12 @@ $msg = "";
 if (isset($_POST['upload'])) {
     $name = $_POST['name'];
     $name = trim($name);
-    $desc = $_POST['description'];
-    $desc = trim($desc);
 
- 
-    $categories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
-    $thumbnail = $_POST['thumbnail'];
-    $weathers = isset($_POST['weathers']) ? json_encode($_POST['weathers']) : '[]';
 
-    $sql = "INSERT INTO `activities` (`name`, `thumbnail`, `description`, `weathers`, `categories`) VALUES ('$name','$thumbnail','$desc','$weathers','$categories')";
+    $sql = "INSERT INTO `weathers`(`weather`) VALUES ('$name')";
 
     if (mysqli_query($db, $sql)) {
-        $msg = "Activity uploaded successfully";
+        $msg = "Weather created successfully";
     } else {
         $msg = "Query Not Executed";
     }
@@ -53,37 +47,7 @@ if (isset($_POST['upload'])) {
         <form method="POST" action="" enctype="multipart/form-data">
             <label for="name">Name</label>
             <input type="text" id="name" name="name" placeholder="Enter name here..." required>
-            <label for="description">Description</label>
-            <textarea id="description" name="description" placeholder="Write something.." required></textarea>
-            
-            <!-- Categories -->
-			<label for="categories">Categories</label>
-			<br>
-			<?php
-				// Fetch categories from the database
-				$category_query = mysqli_query($db, "SELECT * FROM categories");
-				while ($row = mysqli_fetch_assoc($category_query)) {
-					echo '<input type="checkbox" name="categories[]" value="' . $row['category'] . '"> ' . $row['category'] . '<br>';
-				}
-			?>
-			<br>
-
-			<!-- Weathers -->
-			<label for="weathers">Weathers</label>
-			<br>
-			<?php
-				// Fetch weathers from the database
-				$weather_query = mysqli_query($db, "SELECT * FROM weathers");
-				while ($row = mysqli_fetch_assoc($weather_query)) {
-					echo '<input type="checkbox" name="weathers[]" value="' . $row['weather'] . '"> ' . $row['weather'] . '<br>';
-				}
-			?>
-			<br>
-
-			<br>
-			<br>
-            <label for="thumbnail">Thumbnail</label>
-            <input type="text" id="thumbnail" name="thumbnail" placeholder="Enter thumbnail URL..." required>
+          
             <input type="submit" name="upload">
         </form>
         </div>
@@ -110,8 +74,6 @@ if (isset($_POST['upload'])) {
         }
 
     </script>
-
-    <!-- Include your JavaScript dependencies here -->
 
 </body>
 </html>
