@@ -20,7 +20,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
        
 			$thumbnail= $row['thumbnail'];
 			$categories = $row['categories'];
-			$selectedCategories = json_decode($categories); // Assuming $categories contains JSON-encoded category names
+			$selectedCategories = json_decode($categories); 
 			$weathers= $row['weathers'];
         } 
     }

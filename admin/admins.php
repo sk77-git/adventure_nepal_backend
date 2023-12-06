@@ -20,25 +20,9 @@ if (isset($_GET['deleteYesBtn'])) {
 $id= $_GET['userid'];
 $sqlDelete= "DELETE FROM `admins` WHERE id= $id";
 
-//$sql2 = "SELECT * FROM posts WHERE id = '$id' ";
 
 
-/*=============Deleting Image file first ==================*/
-// $posts= mysqli_query($db, $sql2);
-// if ($posts) {
-//   while ($row = mysqli_fetch_array($posts)) {
-     
-//       $fimg = "images/".$row['fimg'];
 
-//       /* Deliting Image*/
-//       if (!unlink($fimg)) {
-//         echo ($fimg ."cannot be deleted due to an error");
-//     }
-//     else {
-//         //echo ("$fimg has been deleted");
-//     }     
-//     } 
-// }
 
 
 /* ================== Deleting table row==============*/

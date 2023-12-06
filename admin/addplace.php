@@ -19,7 +19,7 @@ if (isset($_POST['upload'])) {
     $desc = $_POST['description'];
     $desc = trim($desc);
 
-    //$html = $_POST['html'];
+  
     $lat = floatval($_POST['lat']);
     $long = floatval($_POST['long']);
     $categories = isset($_POST['categories']) ? json_encode($_POST['categories']) : '[]';
